@@ -3,24 +3,25 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package moviegame;
+package main;
 
-import static java.lang.System.out;
+import java.io.FileNotFoundException;
 
 /**
  *
- * @author rbowlen
+ * @author carbafra
  */
 public class Main {
 
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
-        
-        Game game = new Game();
-        
-        game.initGame();
+      public static void main(String[] args) throws FileNotFoundException {
+         Game movie = new Game();
+        System.out.println("Movie Gussing Game, start gussing letters to win"); 
+        System.out.println("After 10 incorrect guesses, you lose");
+        System.out.println("Good Luck!\n");
+        movie.initGame();
     }
     
 }

@@ -3,125 +3,127 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package moviegame;
+package main;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import static java.lang.System.out;
 import java.util.ArrayList;
 import java.util.Scanner;
-import java.io.FileNotFoundException;
 
 /**
  *
- * @author rbowlen
+ * @author carbafra
  */
 public class Game {
-    
-    
+  
     /**
-     * Reads movie.txt from the project folder and returns each title within 
-     * as an ArrayList.
-     * @return ArrayList<String> movieList
-     */
-    private ArrayList<String> listMovies() {
-        // To store each movie title in movies.txt
-        ArrayList<String> movieList = new ArrayList<>();
-        
-        try {
-            Scanner scan = new Scanner(new File("movies.txt"));
- 
-            while(scan.hasNextLine()) {
-                movieList.add(scan.nextLine());
-            } 
-            
-        } catch(FileNotFoundException e) {
-                    System.out.println("Movies text file was not found. Please"
-                            + " add and try again.");
-                    }
-        return movieList;
-    }
-    
-    /**
-     * Selects a movie randomly from the movies text file.
-     * @return String randomMovie
-     */
-    private String getRandMovie() {
-        ArrayList<String> movieList = listMovies();
-        int index = (int)(Math.random() * movieList.size());
-        return movieList.get(index);
-        
-    }
-    
-    /**
-     * Replaces all movie titles with underscores
-     * @param movieTitle
+     * Method to pick a movie from the list
      * @return 
      */
-    public String obscureTitle(String movieTitle, String correctLetters) {
-        if(correctLetters == "") {
-            return movieTitle.replaceAll("[a-zA-Z]", "_");
-        } else {
+     boolean won = false; 
+     String randMovie;
+    public ArrayList<String> readMovies(){
+        ArrayList<String> movies = new ArrayList<>(); 
+       
+        try {
+            Scanner scan = new Scanner(new File("movieList.txt"));
+            
+            while(scan.hasNextLine()){
+                movies.add(scan.nextLine()); 
+                
+            }      
+        } catch (FileNotFoundException e) {
+            out.println("A movies file was not found. Please put a file called movieList.txt in your "
+                    + "project folder. "); 
+        }
+        
+        return movies; 
+        
+    }
+    
+    private String getRandomMovie() {
+        ArrayList<String>movies = readMovies();
+        int movieIndex = (int)(Math.random()*((movies.size() - 0) + 1)) + 0;  
+        return movies.get(movieIndex); 
+    }
+    
+    private String obscureMovie(String movieTitle, String correctLetters) {
+        if (correctLetters == "") {
+            return movieTitle.replaceAll("[a-zA-Z]", "_");            
+        } else{
             return movieTitle.replaceAll("[a-zA-Z&&[^" + correctLetters + "]]", "_");
         }
     }
     
     public String inputLetter() {
-        System.out.println("Guess a letter:");
-        //Create a scanner to get user's guess.
-        Scanner scan = new Scanner(System.in);
-        //Store user guess for processing
-        String letter = scan.nextLine().toLowerCase();
+        System.out.println("Guess a letter:"); 
+        Scanner scan = new Scanner(System.in); 
         
-        if(!letter.matches("[a-z]")) {
-            System.out.println("This is not a letter. Try again.");
+        String letter = scan.next().toLowerCase();
+        
+        if(!letter.matches("[a-z]")){
+            out.println("This is not a letter"); 
             return inputLetter();
         }
         
-        return letter;
-        
+        return letter; 
     }
     
     /**
-     * Checks if the user's guess was correct
+     * Checks if user guess is in movie title
      * @param movieTitle
      * @param guess
      * @return boolean
      */
-    public boolean checkGuess(String movieTitle, String guess) {
-        return movieTitle.contains(guess);
+    public boolean checkGuess(String movieTitle, String guess){
+        return movieTitle.contains(guess); 
     }
     
-    public void initGame() {
-        // Store correct guesses
-        String correctLetters = "";
-        // Store incorrect guesses
+    public void gameOver(){
+        if(won){
+            System.out.println("You Won! Congrats");
+        }else{
+            System.out.println("You lost :/ try building next time"); 
+        }
+    }
+    
+    public void initGame(){
+        boolean gameOver = false; 
+        String movie = getRandomMovie();
         String wrongLetters = "";
-        // User chances
-        int livesLeft = 3;
-        // Get a movie title
-        String movie = getRandMovie();
-        // Game over
-        boolean gameOver = false;
-        
-        while(!gameOver) {
-            // Obscure the title
-            System.out.println(obscureTitle(movie, correctLetters));
-
-
-            // Get a user guess
-            String guess = inputLetter();
-            //Check to see if the users guess is in the title
-            if(checkGuess(movie, guess)) {
-                correctLetters += guess;
-                System.out.println("Correct!");
-            } else {
-                wrongLetters += guess;
-                System.out.println("Sorry, try again!");
-                livesLeft--;
-            }
-        }   
-        
+        String correctLetters = "";   
+        int badGuesses = 0; 
        
-        
+        while (!gameOver) {            
+                     
+            System.out.printf("You have guessed %d wrong letters\n", badGuesses);
+            System.out.println("You are guessing: "+obscureMovie(movie, correctLetters));            
+            
+            String guess = inputLetter();
+            
+            if(correctLetters.contains(guess) || wrongLetters.contains(guess)){
+                System.out.println("You already guessed that letter"); 
+                guess = inputLetter();
+            }
+            
+            if(checkGuess(movie, guess)){
+                correctLetters += guess;
+            }else{
+                wrongLetters += guess; 
+                badGuesses += 1; 
+            }
+            
+            if (!obscureMovie(movie, correctLetters).contains("_")){
+                gameOver = true; 
+                won = true; 
+                System.out.println(obscureMovie(movie, correctLetters)); 
+                gameOver(); 
+            }else if(badGuesses == 10){
+                gameOver = true; 
+                gameOver(); 
+            }
+        }
     }
-    
 }
+
